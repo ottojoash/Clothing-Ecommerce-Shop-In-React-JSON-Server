@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import "../styles/Landing.css";
 import { Hero, ProductElement, Stats } from "../components";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -26,7 +25,7 @@ const Landing = () => {
         <h2 className="text-6xl text-center my-12 max-md:text-4xl text-accent-content">
           Trending Products
         </h2>
-        <div className="selected-products-grid max-w-7xl mx-auto">
+        <div className="flex overflow-x-auto p-4 space-x-4 max-w-7xl mx-auto">
           {products.map((product) => (
             <ProductElement
               key={product.id}
@@ -35,6 +34,7 @@ const Landing = () => {
               image={product.imageUrl}
               rating={product.rating}
               price={product.price.current.value}
+              className="flex-none"
             />
           ))}
         </div>
