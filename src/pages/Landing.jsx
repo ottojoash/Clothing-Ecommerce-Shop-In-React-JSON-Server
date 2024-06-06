@@ -25,17 +25,18 @@ const Landing = () => {
         <h2 className="text-6xl text-center my-12 max-md:text-4xl text-accent-content">
           Trending Products
         </h2>
-        <div className="flex overflow-x-auto p-4 space-x-4 max-w-7xl mx-auto">
+        <div className="flex overflow-x-auto p-4 space-x-4 max-w-7xl mx-auto no-scrollbar">
           {products.map((product) => (
-            <ProductElement
-              key={product.id}
-              id={product.id}
-              title={product.name}
-              image={product.imageUrl}
-              rating={product.rating}
-              price={product.price.current.value}
-              className="flex-none"
-            />
+            <div key={product.id} className="shrink-0 w-64">
+              <ProductElement
+                id={product.id}
+                title={product.name}
+                image={product.imageUrl}
+                rating={product.rating}
+                price={product.price.current.value}
+                className="flex-none"
+              />
+            </div>
           ))}
         </div>
       </div>
