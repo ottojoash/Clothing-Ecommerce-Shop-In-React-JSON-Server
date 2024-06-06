@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Hero, ProductElement, Stats } from "../components";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import axios from "axios";
+import ClothingProducts from "../components/categories";
 
 export const landingLoader = async () => {
   const response = await axios(
@@ -19,7 +20,8 @@ const Landing = () => {
   return (
     <main>
       <Hero />
-      <Stats />
+      {/* <Stats /> */}
+      <ClothingProducts/>
 
       <div className="selected-products">
         <h2 className="text-6xl text-center my-12 max-md:text-4xl text-accent-content">

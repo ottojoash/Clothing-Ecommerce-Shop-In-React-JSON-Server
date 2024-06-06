@@ -52,7 +52,7 @@ const Footer = () => {
       </nav>
       <aside>
         <p className="text-2xl max-sm:text-sm text-accent-content">
-          Copyright © 2023 - All right reserved by Kuzma Clothing & Shoes
+          Copyright © 2023 - All right reserved by Theessentialsman Clothing & Shoes
         </p>
       </aside>
     </footer>
