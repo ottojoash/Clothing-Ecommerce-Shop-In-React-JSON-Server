@@ -1,15 +1,16 @@
-import React, { useEffect } from "react";
-import { Hero, ProductElement, Stats } from "../components";
+import React from "react";
+import { Hero, ProductElement } from "../components";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import axios from "axios";
 import ClothingProducts from "../components/categories";
 
 export const landingLoader = async () => {
-  const response = await axios(
-    `http://localhost:8080/products?_page=1&_limit=8`
+  const response = await fetch(
+    `http://localhost:5000/api/shop/products?_page=1&_limit=8`
   );
-  const data = response.data;
-
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  const data = await response.json();
   return { products: data };
 };
 
@@ -21,7 +22,7 @@ const Landing = () => {
     <main>
       <Hero />
       {/* <Stats /> */}
-      <ClothingProducts/>
+      <ClothingProducts />
 
       <div className="selected-products">
         <h2 className="text-6xl text-center my-12 max-md:text-4xl text-accent-content">
@@ -35,7 +36,7 @@ const Landing = () => {
                 title={product.name}
                 image={product.imageUrl}
                 rating={product.rating}
-                price={product.price.current.value}
+                price={product.price?.current?.value}  // Use optional chaining to safely access nested properties
                 className="flex-none"
               />
             </div>

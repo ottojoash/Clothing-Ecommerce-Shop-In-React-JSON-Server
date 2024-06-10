@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { SectionTitle } from "../components";
-import axios from "axios";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -23,8 +22,11 @@ const Profile = () => {
 
   const getUserData = async () => {
     try {
-      const response = await axios(`http://localhost:8080/user/${id}`);
-      const data = response.data;
+      const response = await fetch(`http://localhost:5000/api/users/profile/${id}`);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
       setUserFormData({
         name: data.name,
         lastname: data.lastname,
@@ -34,7 +36,7 @@ const Profile = () => {
         password: data.password,
       });
     } catch (error) {
-      toast.error("Error: ", error.response);
+      toast.error("Error: ", error.message);
     }
   };
 
@@ -45,32 +47,40 @@ const Profile = () => {
       toast.error("You must be logged in to access this page");
       navigate("/");
     }
-  }, []);
+  }, [loginState, navigate]);
 
   const updateProfile = async (e) => {
     e.preventDefault();
-    try{
+    try {
+      const getResponse = await fetch(`http://localhost:5000/api/users/profile/${id}`);
+      if (!getResponse.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const userObj = await getResponse.json();
 
-      const getResponse = await axios(`http://localhost:8080/user/${id}`);
-      const userObj = getResponse.data;
-
-      // saljemo get(default) request
-      const putResponse = await axios.put(`http://localhost:8080/user/${id}`, {
-        id: id,
-        name: userFormData.name,
-        lastname: userFormData.lastname,
-        email: userFormData.email,
-        phone: userFormData.phone,
-        adress: userFormData.adress,
-        password: userFormData.password,
-        userWishlist: await userObj.userWishlist
-        //userWishlist treba da stoji ovde kako bi sacuvao stanje liste zelja
+      const putResponse = await fetch(`http://localhost:5000/api/users/profile/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: id,
+          name: userFormData.name,
+          lastname: userFormData.lastname,
+          email: userFormData.email,
+          phone: userFormData.phone,
+          adress: userFormData.adress,
+          password: userFormData.password,
+          userWishlist: userObj.userWishlist,
+        }),
       });
-      const putData = putResponse.data;
-    }catch(error){
-      console.log(error.response);
+      if (!putResponse.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const putData = await putResponse.json();
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      toast.error("Error: " + error.message);
     }
-  }
+  };
 
   return (
     <>
@@ -86,7 +96,7 @@ const Profile = () => {
               placeholder="Type here"
               className="input input-bordered w-full lg:max-w-xs"
               value={userFormData.name}
-              onChange={(e) => {setUserFormData({...userFormData, name: e.target.value})}}
+              onChange={(e) => setUserFormData({ ...userFormData, name: e.target.value })}
             />
           </div>
 
@@ -99,7 +109,7 @@ const Profile = () => {
               placeholder="Type here"
               className="input input-bordered w-full lg:max-w-xs"
               value={userFormData.lastname}
-              onChange={(e) => {setUserFormData({...userFormData, lastname: e.target.value})}}
+              onChange={(e) => setUserFormData({ ...userFormData, lastname: e.target.value })}
             />
           </div>
 
@@ -112,7 +122,7 @@ const Profile = () => {
               placeholder="Type here"
               className="input input-bordered w-full lg:max-w-xs"
               value={userFormData.email}
-              onChange={(e) => {setUserFormData({...userFormData, email: e.target.value})}}
+              onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
             />
           </div>
 
@@ -125,7 +135,7 @@ const Profile = () => {
               placeholder="Type here"
               className="input input-bordered w-full lg:max-w-xs"
               value={userFormData.phone}
-              onChange={(e) => {setUserFormData({...userFormData, phone: e.target.value})}}
+              onChange={(e) => setUserFormData({ ...userFormData, phone: e.target.value })}
             />
           </div>
 
@@ -138,7 +148,7 @@ const Profile = () => {
               placeholder="Type here"
               className="input input-bordered w-full lg:max-w-xs"
               value={userFormData.adress}
-              onChange={(e) => {setUserFormData({...userFormData, adress: e.target.value})}}
+              onChange={(e) => setUserFormData({ ...userFormData, adress: e.target.value })}
             />
           </div>
 
@@ -151,7 +161,7 @@ const Profile = () => {
               placeholder="Type here"
               className="input input-bordered w-full lg:max-w-xs"
               value={userFormData.password}
-              onChange={(e) => {setUserFormData({...userFormData, password: e.target.value})}}
+              onChange={(e) => setUserFormData({ ...userFormData, password: e.target.value })}
             />
           </div>
         </div>

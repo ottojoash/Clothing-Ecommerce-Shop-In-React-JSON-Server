@@ -11,7 +11,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [adress, setAdress] = useState("");
+  const [address, setAddress] = useState("");
 
   const navigate = useNavigate();
 
@@ -31,13 +31,13 @@ const Register = () => {
     } else if (phone.length < 4) {
       isProceed = false;
       errorMessage = "Phone must be longer than 3 characters";
-    } else if (adress.length < 4) {
+    } else if (address.length < 4) {
       isProceed = false;
       errorMessage = "Adress must be longer than 3 characters";
-    } else if (password.length < 6) {
+    } else if (password.length < 5) {
       isProceed = false;
       errorMessage = "Please enter a password longer than 5 characters";
-    } else if (confirmPassword.length < 6) {
+    } else if (confirmPassword.length < 5) {
       isProceed = false;
       errorMessage = "Please enter a confirm password longer than 5 characters";
     } else if (password !== confirmPassword) {
@@ -52,35 +52,38 @@ const Register = () => {
     return isProceed;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     let regObj = {
-      id: nanoid(),
+      // id: nanoid(),
       name,
       lastname,
       email,
-      phone,
-      adress,
       password,
-      userWishlist: [],
+      phone,
+      address,
+      // userWishlist: [],
     };
 
     if (isValidate()) {
-      fetch("http://localhost:8080/user", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(regObj),
-      })
-        .then((res) => {
-          toast.success("Registration Successful");
-          navigate("/login");
-        })
-        .catch((err) => {
-          toast.error("Failed: " + err.message);
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(regObj),
         });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        toast.success("Registration Successful");
+        navigate("/login");
+      } catch (err) {
+        toast.error("Failed: " + err.message);
+      }
     }
   };
+
   return (
     <>
       <SectionTitle title="Register" path="Home | Register" />
@@ -134,8 +137,8 @@ const Register = () => {
               <input
                 type="text"
                 className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
-                value={adress}
-                onChange={(e) => setAdress(e.target.value)}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
                 required={true}
               />
               <label className="font-semibold text-sm pb-1 block text-accent-content">

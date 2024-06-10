@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { SectionTitle } from "../components";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { store } from "../store";
 import { calculateTotals, clearCart } from "../features/cart/cartSlice";
@@ -16,14 +15,21 @@ const ThankYou = () => {
 
   const saveToOrderHistory = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/orders", {
-        userId: localStorage.getItem("id"),
-        orderStatus: "in progress",
-        subtotal: total,
-        cartItems: cartItems,
+      const response = await fetch("http://localhost:5000/api/orders/orders", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: localStorage.getItem("id"),
+          orderStatus: "in progress",
+          subtotal: total,
+          cartItems: cartItems,
+        }),
       });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
     } catch (err) {
-      toast.error(err.response);
+      toast.error(err.message);
     }
   };
 
@@ -39,8 +45,7 @@ const ThankYou = () => {
       toast.error("You must be logged in to access this page");
       navigate("/");
     }
-  }, []);
-
+  }, [loginState, navigate]);
 
   return (
     <>

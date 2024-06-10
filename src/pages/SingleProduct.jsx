@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useState } from "react";
 import {
   QuantityInput,
@@ -7,27 +6,26 @@ import {
   SingleProductRating,
   SingleProductReviews,
 } from "../components";
-import { FaHeart } from "react-icons/fa6";
-import { FaCartShopping } from "react-icons/fa6";
-
+import { FaHeart, FaCartShopping } from "react-icons/fa6";
 import { Link, useLoaderData } from "react-router-dom";
 import parse from "html-react-parser";
 import { nanoid } from "nanoid";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../features/cart/cartSlice";
-import {
-  updateWishlist,
-  removeFromWishlist,
-} from "../features/wishlist/wishlistSlice";
+import { updateWishlist, removeFromWishlist } from "../features/wishlist/wishlistSlice";
 import { toast } from "react-toastify";
 import { store } from "../store";
 
 export const singleProductLoader = async ({ params }) => {
   const { id } = params;
 
-  const response = await axios(`http://localhost:8080/products/${id}`);
+  const response = await fetch(`http://localhost:5000/api/shop/products/${id}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  const data = await response.json();
 
-  return { productData: response.data };
+  return { productData: data };
 };
 
 const SingleProduct = () => {
@@ -57,9 +55,7 @@ const SingleProduct = () => {
     brandName: productData?.brandName,
     amount: quantity,
     selectedSize: size || productData?.availableSizes[0],
-    isInWishList:
-      wishItems.find((item) => item.id === productData?.id + size) !==
-      undefined,
+    isInWishList: wishItems.find((item) => item.id === productData?.id + size) !== undefined,
   };
 
   for (let i = 0; i < productData?.rating; i++) {
@@ -68,22 +64,24 @@ const SingleProduct = () => {
 
   const addToWishlistHandler = async (product) => {
     try {
-      const getResponse = await axios.get(
-        `http://localhost:8080/user/${localStorage.getItem("id")}`
-      );
-      const userObj = getResponse.data;
+      const getResponse = await fetch(`http://localhost:5000/api/users/profile/${localStorage.getItem("id")}`);
+      if (!getResponse.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const userObj = await getResponse.json();
 
-      
       userObj.userWishlist = userObj.userWishlist || [];
-
       userObj.userWishlist.push(product);
 
-      const postResponse = await axios.put(
-        `http://localhost:8080/user/${localStorage.getItem("id")}`,
-        userObj
-      );
+      const postResponse = await fetch(`http://localhost:5000/api/users/profile/${localStorage.getItem("id")}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userObj)
+      });
+      if (!postResponse.ok) {
+        throw new Error('Network response was not ok');
+      }
 
-      
       store.dispatch(updateWishlist({ userObj }));
       toast.success("Product added to the wishlist!");
     } catch (error) {
@@ -92,27 +90,31 @@ const SingleProduct = () => {
   };
 
   const removeFromWishlistHandler = async (product) => {
-    const getResponse = await axios.get(
-      `http://localhost:8080/user/${localStorage.getItem("id")}`
-    );
-    const userObj = getResponse.data;
+    try {
+      const getResponse = await fetch(`http://localhost:5000/api/users/profile/${localStorage.getItem("id")}`);
+      if (!getResponse.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const userObj = await getResponse.json();
 
-    userObj.userWishlist = userObj.userWishlist || [];
+      userObj.userWishlist = userObj.userWishlist || [];
+      const newWishlist = userObj.userWishlist.filter(item => product.id !== item.id);
+      userObj.userWishlist = newWishlist;
 
-    const newWishlist = userObj.userWishlist.filter(
-      (item) => product.id !== item.id
-    );
+      const postResponse = await fetch(`http://localhost:5000/api/users/profile/${localStorage.getItem("id")}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userObj)
+      });
+      if (!postResponse.ok) {
+        throw new Error('Network response was not ok');
+      }
 
-    userObj.userWishlist = newWishlist;
-
-    const postResponse = await axios.put(
-      `http://localhost:8080/user/${localStorage.getItem("id")}`,
-      userObj
-    );
-
-    
-    store.dispatch(removeFromWishlist({ userObj }));
-    toast.success("Product removed from the wishlist!");
+      store.dispatch(removeFromWishlist({ userObj }));
+      toast.success("Product removed from the wishlist!");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -156,11 +158,7 @@ const SingleProduct = () => {
             />
           </div>
           <div>
-            <label htmlFor="Quantity" className="sr-only">
-              {" "}
-              Quantity{" "}
-            </label>
-
+            <label htmlFor="Quantity" className="sr-only">Quantity</label>
             <div className="flex items-center gap-1">
               <QuantityInput quantity={quantity} setQuantity={setQuantity} />
             </div>
@@ -172,9 +170,7 @@ const SingleProduct = () => {
                 if (loginState) {
                   dispatch(addToCart(product));
                 } else {
-                  toast.error(
-                    "You must be logged in to add products to the cart"
-                  );
+                  toast.error("You must be logged in to add products to the cart");
                 }
               }}
             >
@@ -189,9 +185,7 @@ const SingleProduct = () => {
                   if (loginState) {
                     removeFromWishlistHandler(product);
                   } else {
-                    toast.error(
-                      "You must be logged in to remove products from the wishlist"
-                    );
+                    toast.error("You must be logged in to remove products from the wishlist");
                   }
                 }}
               >
@@ -205,9 +199,7 @@ const SingleProduct = () => {
                   if (loginState) {
                     addToWishlistHandler(product);
                   } else {
-                    toast.error(
-                      "You must be logged in to add products to the wishlist"
-                    );
+                    toast.error("You must be logged in to add products to the wishlist");
                   }
                 }}
               >
@@ -223,13 +215,11 @@ const SingleProduct = () => {
             <div className="badge bg-gray-700 badge-lg font-bold text-white p-5 mt-2">
               Gender: {productData?.gender}
             </div>
-            <div
-              className={
-                productData?.isInStock
-                  ? "badge bg-gray-700 badge-lg font-bold text-white p-5 mt-2"
-                  : "badge bg-gray-700 badge-lg font-bold text-white p-5 mt-2"
-              }
-            >
+            <div className={
+              productData?.isInStock
+                ? "badge bg-gray-700 badge-lg font-bold text-white p-5 mt-2"
+                : "badge bg-gray-700 badge-lg font-bold text-white p-5 mt-2"
+            }>
               In Stock: {productData?.isInStock ? "Yes" : "No"}
             </div>
             <div className="badge bg-gray-700 badge-lg font-bold text-white p-5 mt-2">
@@ -239,8 +229,7 @@ const SingleProduct = () => {
               Category: {productData?.category}
             </div>
             <div className="badge bg-gray-700 badge-lg font-bold text-white p-5 mt-2">
-              Production Date:{" "}
-              {productData?.productionDate?.substring(0, 10)}
+              Production Date: {productData?.productionDate?.substring(0, 10)}
             </div>
           </div>
         </div>

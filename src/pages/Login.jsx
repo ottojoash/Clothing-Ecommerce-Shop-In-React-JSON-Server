@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/no-unescaped-entities */
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { SectionTitle } from "../components";
@@ -18,45 +20,54 @@ const Login = () => {
       localStorage.clear();
       store.dispatch(logoutUser());
     }
-  }, []);
+  }, [loginState]);
 
   const isValidate = () => {
     let isProceed = true;
 
     if (email.length === 0) {
       isProceed = false;
-      toast.warn("Please enter a email");
+      toast.warn("Please enter an email");
     } else if (password.length < 6) {
       isProceed = false;
-      toast.warn("Password must be minimum 6 characters");
+      toast.warn("Password must be at least 6 characters");
     }
     return isProceed;
   };
 
-  const proceedLogin = (e) => {
+  const proceedLogin = async (e) => {
     e.preventDefault();
     if (isValidate()) {
-      fetch("http://localhost:8080/user")
-        .then((res) => res.json())
-        .then((res) => {
-          let data = res;
-          const foundUser = data.filter(
-            (item) => item.email === email && item.password === password
-          );
-          if (foundUser[0]) {
-            toast.success("Login successful");
-            localStorage.setItem("id", foundUser[0].id);
-            store.dispatch(loginUser());
-            navigate("/");
-          } else {
-            toast.warn("Email or password is incorrect");
-          }
-        })
-        .catch((err) => {
-          toast.error("Login failed due to: " + err.message);
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
         });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        if (data.success) {
+          // Handle successful login
+          toast.success("Login successful");
+          // You can save the user's data or authentication token to local storage here if needed
+          navigate("/"); // Redirect the user to the home page
+        } else {
+          // Handle login failure
+          toast.warn("Email or password is incorrect");
+        }
+      } catch (err) {
+        toast.error("Login failed due to: " + err.message);
+      }
     }
   };
+  
 
   return (
     <>

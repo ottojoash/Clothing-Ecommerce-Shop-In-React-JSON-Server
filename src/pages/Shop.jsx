@@ -7,7 +7,6 @@ import {
   SectionTitle,
 } from "../components";
 import "../styles/Shop.css";
-import axios from "axios";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import { nanoid } from "nanoid";
 
@@ -15,9 +14,6 @@ export const shopLoader = async ({ request }) => {
   const params = Object.fromEntries([
     ...new URL(request.url).searchParams.entries(),
   ]);
-  // /posts?title=json-server&author=typicode
-  // GET /posts?_sort=views&_order=asc
-  // GET /posts/1/comments?_sort=votes&_order=asc
 
   let mydate = Date.parse(params.date);
 
@@ -40,7 +36,6 @@ export const shopLoader = async ({ request }) => {
     current_page: Number(params.page) || 1
   };
 
-  // set params in get apis
   let parameter = (`?_start=${(filterObj.current_page - 1) * 10}&_limit=10`) + // pre defined that limit of response is 10 & page number count 1
     (filterObj.brand !== 'all' ? `&brandName=${filterObj.brand}` : "") +
     (filterObj.category !== 'all' ? `&category=${filterObj.category}` : "") +
@@ -52,30 +47,26 @@ export const shopLoader = async ({ request }) => {
     (filterObj.date ? `&productionDate=${filterObj.date}` : ``) // It only matched exact for the date and time. 
 
   try {
-    const response = await axios(
-      `http://localhost:8080/products${parameter}`
-
-    );
-    let data = response.data;
+    const response = await fetch(`http://localhost:5000/api/shop/products${parameter}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
 
     // sorting in descending order
-    if (filterObj.order && !(filterObj.order === "asc" || filterObj.order === "price low")) data.sort((a, b) => b.price.current.value - a.price.current.value)
+    if (filterObj.order && !(filterObj.order === "asc" || filterObj.order === "price low")) {
+      data.sort((a, b) => b.price.current.value - a.price.current.value);
+    }
     return { productsData: data, productsLength: data.length, page: filterObj.current_page };
   } catch (error) {
-    console.log(error.response);
+    console.log(error);
   }
-  // /posts?views_gte=10
 
   return null;
 };
 
-
-
-
 const Shop = () => {
-
   const productLoaderData = useLoaderData();
-
 
   return (
     <>
@@ -92,7 +83,7 @@ const Shop = () => {
                 title={product.name}
                 image={product.imageUrl}
                 rating={product.rating}
-                price={product.price.current.value}
+                price={product.price?.current?.value} // Use optional chaining to safely access nested properties
                 brandName={product.brandName}
               />
             ))}
