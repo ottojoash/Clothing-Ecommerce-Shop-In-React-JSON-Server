@@ -52,13 +52,13 @@ const Profile = () => {
   const updateProfile = async (e) => {
     e.preventDefault();
     try {
-      const getResponse = await fetch(`http://localhost:5000/api/users/profile/${id}`);
+      const getResponse = await fetch(`https://backendshop-5bmm.onrender.com/api/users/profile/${id}`);
       if (!getResponse.ok) {
         throw new Error("Network response was not ok");
       }
       const userObj = await getResponse.json();
 
-      const putResponse = await fetch(`http://localhost:5000/api/users/profile/${id}`, {
+      const putResponse = await fetch(`https://backendshop-5bmm.onrender.com/api/users/profile/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -12,7 +12,7 @@ const OrderHistory = () => {
 
   const getOrderHistory = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/orders");
+      const response = await fetch("https://backendshop-5bmm.onrender.com/api/orders");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

@@ -13,7 +13,7 @@ const Search = () => {
     setSearchTerm(e.target.search.value);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/shop/products/?q=${e.target.search.value}&_page=1`
+        `https://backendshop-5bmm.onrender.com/api/shop/products/?q=${e.target.search.value}&_page=1`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -28,7 +28,7 @@ const Search = () => {
   const handleSearchPagination = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/shop/products/?q=${searchTerm}&_page=${currentPage}`
+        `https://backendshop-5bmm.onrender.com/api/shop/products/?q=${searchTerm}&_page=${currentPage}`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");

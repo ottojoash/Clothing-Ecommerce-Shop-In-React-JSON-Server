@@ -47,7 +47,7 @@ export const shopLoader = async ({ request }) => {
     (filterObj.date ? `&productionDate=${filterObj.date}` : ``) // It only matched exact for the date and time. 
 
   try {
-    const response = await fetch(`http://localhost:5000/api/shop/products${parameter}`);
+    const response = await fetch(`https://backendshop-5bmm.onrender.com/api/shop/products${parameter}`);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }

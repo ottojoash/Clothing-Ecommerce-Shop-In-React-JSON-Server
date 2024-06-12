@@ -5,7 +5,7 @@ import ClothingProducts from "../components/categories";
 
 export const landingLoader = async () => {
   const response = await fetch(
-    `http://localhost:5000/api/shop/products?_page=1&_limit=8`
+    `https://backendshop-5bmm.onrender.com/api/shop/products?_page=1&_limit=8`
   );
   if (!response.ok) {
     throw new Error("Network response was not ok");

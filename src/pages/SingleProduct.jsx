@@ -19,7 +19,7 @@ import { store } from "../store";
 export const singleProductLoader = async ({ params }) => {
   const { id } = params;
 
-  const response = await fetch(`http://localhost:5000/api/shop/products/${id}`);
+  const response = await fetch(`https://backendshop-5bmm.onrender.com/api/shop/products/${id}`);
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
@@ -64,7 +64,7 @@ const SingleProduct = () => {
 
   const addToWishlistHandler = async (product) => {
     try {
-      const getResponse = await fetch(`http://localhost:5000/api/users/profile/${localStorage.getItem("id")}`);
+      const getResponse = await fetch(`https://backendshop-5bmm.onrender.com/api/users/profile/${localStorage.getItem("id")}`);
       if (!getResponse.ok) {
         throw new Error('Network response was not ok');
       }
@@ -73,7 +73,7 @@ const SingleProduct = () => {
       userObj.userWishlist = userObj.userWishlist || [];
       userObj.userWishlist.push(product);
 
-      const postResponse = await fetch(`http://localhost:5000/api/users/profile/${localStorage.getItem("id")}`, {
+      const postResponse = await fetch(`https://backendshop-5bmm.onrender.com/api/users/profile/${localStorage.getItem("id")}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userObj)
@@ -91,7 +91,7 @@ const SingleProduct = () => {
 
   const removeFromWishlistHandler = async (product) => {
     try {
-      const getResponse = await fetch(`http://localhost:5000/api/users/profile/${localStorage.getItem("id")}`);
+      const getResponse = await fetch(`https://backendshop-5bmm.onrender.com/api/users/profile/${localStorage.getItem("id")}`);
       if (!getResponse.ok) {
         throw new Error('Network response was not ok');
       }
@@ -101,7 +101,7 @@ const SingleProduct = () => {
       const newWishlist = userObj.userWishlist.filter(item => product.id !== item.id);
       userObj.userWishlist = newWishlist;
 
-      const postResponse = await fetch(`http://localhost:5000/api/users/profile/${localStorage.getItem("id")}`, {
+      const postResponse = await fetch(`https://backendshop-5bmm.onrender.com/api/users/profile/${localStorage.getItem("id")}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userObj)
